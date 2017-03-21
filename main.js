@@ -29,7 +29,7 @@ module.exports.loop = function () {
     console.log('Upgraders: ' + upgraders.length);
 
     if(upgraders.length < numUpgraders) {
-        var newName = Game.spawns[spawn].createCreep([WORK,WORK,CARRY,MOVE], undefined, {role: 'upgrader'});
+        var newName = Game.spawns[spawn].createCreep([WORK,CARRY,MOVE,MOVE,MOVE], undefined, {role: 'upgrader'});
         console.log('Spawning new upgrader: ' + newName);
     }
 
@@ -38,7 +38,7 @@ module.exports.loop = function () {
     console.log('Harvesters: ' + harvesters.length);
 
     if(harvesters.length < numHarvesters) {
-        var newName = Game.spawns[spawn].createCreep([WORK,WORK,CARRY,MOVE], undefined, {role: 'harvester'});
+        var newName = Game.spawns[spawn].createCreep([WORK,CARRY,MOVE,MOVE,MOVE], undefined, {role: 'harvester'});
         console.log('Spawning new harvester: ' + newName);
     }
 
