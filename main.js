@@ -20,7 +20,7 @@ module.exports.loop = function () {
     console.log('Builders: ' + builders.length);
 
     if(builders.length < numBuilders) {
-        var newName = Game.spawns[spawn].createCreep([WORK,WORK,CARRY,MOVE], undefined, {role: 'builder'});
+        var newName = Game.spawns[spawn].createCreep([WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'builder'});
         console.log('Spawning new builder: ' + newName);
     }
 
