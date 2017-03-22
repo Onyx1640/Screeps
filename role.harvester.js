@@ -4,12 +4,13 @@ var roleHarvester = {
     run: function(creep) {
         if(creep.carry.energy < creep.carryCapacity) {
             var sources = creep.room.find(FIND_SOURCES);
-            
+            //Memory.numHarvesting = Memory.numHarvesting - 1;
             if(creep.harvest(sources[1]) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(sources[1], {visualizePathStyle: {stroke: '#ffaa00'}});
             }
         }
         else {
+            //Memory.numHarvesting = Memory.numHarvesting + 1;
             var targets = creep.room.find(FIND_STRUCTURES, {
                 filter: (structure) => {
                     return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) &&
@@ -22,8 +23,9 @@ var roleHarvester = {
                 }
             }
             else {
-                console.log("Creep " + creep + " is moving to Flag1");
-                creep.moveTo(Game.flags.Flag1);
+                if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
+                }
             }
         }
     }
