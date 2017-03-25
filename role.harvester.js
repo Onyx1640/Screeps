@@ -11,8 +11,8 @@ var roleHarvester = {
         if(creep.memory.needRefill == 1) {
             var sources = creep.room.find(FIND_SOURCES);
             //Memory.numHarvesting = Memory.numHarvesting - 1;
-            if(creep.harvest(sources[1]) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(sources[1], {visualizePathStyle: {stroke: '#ffaa00'}});
+            if(creep.harvest(sources[creep.memory.energySource]) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(sources[creep.memory.energySource], {visualizePathStyle: {stroke: '#ffaa00'}});
             }
         }
         else {

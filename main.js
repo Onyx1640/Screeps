@@ -2,17 +2,28 @@ var roleHarvester = require('role.harvester');
 var roleUpgrader = require('role.upgrader');
 var roleBuilder = require('role.builder');
 var roleRepair = require('role.repair');
-var spawn = "Onyx1640_SP0001";
-var numHarvesters = 6;
-var numUpgraders = 4;
-var numBuilders = 4;
-var numRepair = 4;
+var spawn = "Spawn1";
+var numHarvesters = 10;
+var numUpgraders = 0;
+var numBuilders = 0;
+var numRepair = 0;
 var roomInfo = new RoomVisual();
 var numClaimers = 0;
+var energySource = 0;
 
 module.exports.loop = function () {
     roomInfo.clear();
     roomInfo.text("CPU: " + Game.cpu.getUsed(), 10, 1, {align: "left"});
+    var numSource0 = _.filter(Game.creeps, (creep) => creep.memory.energySource == '0');
+    var numSource1 = _.filter(Game.creeps, (creep) => creep.memory.energySource == '1');
+    roomInfo.text("Creeps using Source0: " + numSource0.length, 10, 2, {align: "left"});
+    roomInfo.text("Creeps using Source1: " + numSource1.length, 10, 3, {align: "left"});
+    if(numSource0.length >= numSource1.length) {
+        energySource = 1;
+    }
+    else {
+        energySource = 0;
+    }
     //Cleanup Dead Creeps
     Memory.towerAttachMsg = 0;
     if(Memory.towerAttachMsg > 0) {
@@ -81,13 +92,13 @@ module.exports.loop = function () {
     if (builders.length == 0) {
         if(Memory.outOfBuilders == 0) {
             Memory.outOfBuilders = 30;
-            Game.notify("Out of Builders");
+            //Game.notify("Out of Builders");
         }
         
     }
 
     if(builders.length < numBuilders) {
-        var newName = Game.spawns[spawn].createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE], undefined, {role: 'builder'});
+        var newName = Game.spawns[spawn].createCreep([WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE], undefined, {role: 'builder'});
         //console.log('Spawning new builder: ' + newName);
     }
 
@@ -97,12 +108,12 @@ module.exports.loop = function () {
     if (upgraders.length == 0) {
         if(Memory.outOfUpgraders == 0) {
             Memory.outOfUpgraders = 30;
-            Game.notify("Out of Upgraders");
+            //Game.notify("Out of Upgraders");
         }
     }
 
     if(upgraders.length < numUpgraders) {
-        var newName = Game.spawns[spawn].createCreep([WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE], undefined, {role: 'upgrader'});
+        var newName = Game.spawns[spawn].createCreep([WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE], undefined, {role: 'upgrader'});
         //console.log('Spawning new upgrader: ' + newName);
     }
 
@@ -117,7 +128,7 @@ module.exports.loop = function () {
     }
 
     if(harvesters.length < numHarvesters) {
-        var newName = Game.spawns[spawn].createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE], undefined, {role: 'harvester'});
+        var newName = Game.spawns[spawn].createCreep([WORK,CARRY,CARRY,MOVE,MOVE], undefined, {role: 'harvester', energySource: energySource});
         //console.log('Spawning new harvester: ' + newName);
     }
     
@@ -127,12 +138,12 @@ module.exports.loop = function () {
     if (repairers.length == 0) {
         if(Memory.outOfRepairers == 0) {
             Memory.outOfRepairers = 30;
-            Game.notify("Out of Repairers");
+            //Game.notify("Out of Repairers");
         }
     }
 
     if(repairers.length < numRepair) {
-        var newName = Game.spawns[spawn].createCreep([WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE], undefined, {role: 'repairer'});
+        var newName = Game.spawns[spawn].createCreep([WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE], undefined, {role: 'repairer'});
         //console.log('Spawning new repairer: ' + newName);
     }
 
