@@ -1,3 +1,8 @@
+Memory.desiredWallLevel = 5000;
+Memory.desiredRoadLevel = 5000;
+var roleHarvester = require('role.harvester');
+var roleUpgrader = require('role.upgrader');
+//var roleBuilder = require('role.builder');
 var roleRepair = {
 
     /** @param {Creep} creep **/
@@ -12,29 +17,42 @@ var roleRepair = {
             creep.say('🚧 repair');
         }
         if(!creep.memory.repairing) {
-            var sources = creep.room.find(FIND_SOURCES);
-            
-            if(creep.harvest(sources[creep.memory.energySource]) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(sources[creep.memory.energySource], {visualizePathStyle: {stroke: '#ffaa00'}});
+            var activeContainers = [];
+            var containers = creep.room.find(FIND_STRUCTURES, {
+                filter: (structure) => {
+                    return structure.structureType == STRUCTURE_CONTAINER && structure.energy != 0
+                }
+            });
+            for(var i in containers) {
+                var cont = containers[i];
+                if (cont.store[RESOURCE_ENERGY] != 0) {
+                    activeContainers.push(cont);
+                }
+            }
+            if(creep.withdraw(creep.pos.findClosestByPath(activeContainers), RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(creep.pos.findClosestByPath(activeContainers), {visualizePathStyle: {stroke: '#ffaa00'}});
             }
         }
         else {
+            //Repair Walls First
             var targets = creep.room.find(FIND_STRUCTURES, {
                 filter: (structure) => {
                     return (structure.structureType == STRUCTURE_WALL) &&
-                        structure.hits < 4000
+                        structure.hits < Memory.desiredWallLevel
                 }
             });
+            //console.log(Memory.desiredWallLevel);
             if(targets.length > 0) {
                 if(creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
                 }
             }
             else {
+                //Now Repair Roads
                 var targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {
                         return (structure.structureType == STRUCTURE_ROAD) &&
-                            structure.hits < 5000
+                            structure.hits < Memory.desiredRoadLevel
                     }
                 });
                 if(targets.length > 0) {
@@ -43,9 +61,22 @@ var roleRepair = {
                     }
                 }
                 else {
-                    console.log("Creep " + creep + " is moving to Flag1");
-                    creep.moveTo(Game.flags.Flag1);
-                    Game.notify("Repair Unit is at Idle");
+                    //Now Repair Storage Units
+                    var targets = creep.room.find(FIND_STRUCTURES, {
+                        filter: (structure) => {
+                            return (structure.structureType == STRUCTURE_STORAGE) &&
+                                structure.hits < structure.hitsMax
+                        }
+                    });
+                    if(targets.length > 0) {
+                        if(creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
+                            creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+                        }
+                    }
+                    else {
+                        //Now Revert to Upgrading Room Controller if Everything is Repaired
+                        roleUpgrader.run(creep);
+                    }
                 }
             }
         }

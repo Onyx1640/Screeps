@@ -9,10 +9,20 @@ var roleHarvester = {
             creep.memory.needRefill = 0;
         }
         if(creep.memory.needRefill == 1) {
-            var sources = creep.room.find(FIND_SOURCES);
-            //Memory.numHarvesting = Memory.numHarvesting - 1;
-            if(creep.harvest(sources[creep.memory.energySource]) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(sources[creep.memory.energySource], {visualizePathStyle: {stroke: '#ffaa00'}});
+            var activeContainers = [];
+            var containers = creep.room.find(FIND_STRUCTURES, {
+                filter: (structure) => {
+                    return structure.structureType == STRUCTURE_CONTAINER && structure.energy != 0
+                }
+            });
+            for(var i in containers) {
+                var cont = containers[i];
+                if (cont.store[RESOURCE_ENERGY] != 0) {
+                    activeContainers.push(cont);
+                }
+            }
+            if(creep.withdraw(creep.pos.findClosestByPath(activeContainers), RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(creep.pos.findClosestByPath(activeContainers), {visualizePathStyle: {stroke: '#00ff00'}});
             }
         }
         else {
@@ -25,13 +35,14 @@ var roleHarvester = {
             });
             if(targets.length > 0) {
                 if(creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+                    creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#00ff00'}});
                 }
             }
             else {
-                if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
-                }
+                if(creep.carry.energy < creep.carry.carryCapacity)
+                    creep.memory.needRefill = 1;
+                else
+                    creep.moveTo(Game.flags.Flag1);
             }
         }
     }
